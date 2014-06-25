@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>undefined</title>
+<script src="http://g.assets.daily.taobao.net/??kissy/k/1.4.0/seed-min.js,mui/seed/1.3.2/seed.js,mui/seed-g/1.0.8/seed.js"></script>
+<style>
+.goods_list{width:300px;margin:80px auto;border:1px solid #333;list-style:none;padding:0;height:230px;}
+.goods_list li{float:left;width:80px;height:100px;text-align:center;padding:0 10px;margin-top:10px;}
+.goods_list div{width:80px;height:80px;background:orange;}
+</style>
+</head>
+<body>
+<ul class="goods_list">
+	<li>
+		<div></div>
+		<a href="javascript:;">商品一</a>
+	</li>
+	<li>
+		<div></div>
+		<a href="javascript:;">商品二</a>
+	</li>
+	<li>
+		<div></div>
+		<a href="javascript:;">商品三</a>
+	</li>
+	<li>
+		<div></div>
+		<a href="javascript:;">商品四</a>
+	</li>
+	<li>
+		<div></div>
+		<a href="javascript:;">商品五</a>
+	</li>
+	<li>
+		<div></div>
+		<a href="javascript:;">商品六</a>
+	</li>
+</ul>
+<script>
+KISSY.use('node,io,json,mui/minilogin',function (S,Node,IO,JSON,MLogin){
+	
+	Node.all('.goods_list a').on('click',function (){
+		yao617();
+	}); //io调用
+
+	function yao617(){
+		IO({
+			url: 'markingUserTag.htm',
+			type: 'get',
+			data: {
+				tagId:'NEW_175408'
+			},
+			success: function(str){
+				var data=JSON.parse(str); data.statusCode=702;
+				switch(data.statusCode){
+					case 500: yao500(); break;
+					case 502: yao502(); break;
+					case 504: yao504(); break;
+					case 506: yao506(); break;
+					case 508: yao508(); break;
+					case 512: yao512(); break;
+					case 514: yao514(); break;
+					case 600: yao600(); break;
+					case 700: yao700(); break;
+					case 702: yao702(); break;
+					default: alert('statusCode is undefined');
+				}
+			},
+			error: function(){
+				alert('ajax request was failed');
+			}
+		});
+	} //yao617
+
+	function yao500(){
+		alert('呃，服务器开小差了，请稍后再来～～～');
+	} //yao500
+
+	function yao502(){
+		alert('亲，不好意思，您的身份校验失败，请重新登录试试看～');
+		MLogin.show(function(){
+			alert('登陆成功')
+		}, {
+			check: true,
+			needRedirect: true
+		});
+	} //yao502
+
+	function yao504(){
+		alert('亲，您已经抢到优惠券啦，请不要重复抢哦～');
+	} //yao504
+
+	function yao506(){
+		alert('亲，您已经优惠购买啦，请不要重复抢哦～');
+	} //yao506
+
+	function yao508(){
+		alert('亲，您已经领取新的优惠卷～');
+	} //yao508
+
+	function yao512(){
+		alert('亲，恭喜您已经领取到了优惠卷一份～');
+		window.location.href='http://www.tmall.com/';
+	} //yao512
+
+	function yao514(){
+		alert('亲，活动还没有开始哦～');
+	} //yao514
+
+	function yao600(){
+		if(confirm('亲，你已经领取了一份优惠券，要放弃她领取新的优惠券吗？')){
+			IO({
+				url: 'markingUserTag.htm',
+				type: 'get',
+				data: {
+					tagId:'NEW_175408',
+					isCCT:'1'
+				},
+				success: function (str){
+					alert('ajax for 600 is ready');
+				},
+				error: function (){
+					alert('ajax request for 600 was failed');
+				}
+			});
+		}
+	} //yao600
+
+	function yao700(){
+		alert('亲，您今天没有在医药馆买过商品.暂时不能领取该优惠卷哦～');
+	} //yao700
+
+	function yao702(){
+		if(confirm('亲，您今天没有支付宝实名认证，暂时不能领取该优惠卷哦～')){
+			window.location.href='http://www.tmall.com/';	
+		}
+	} //yao702
+});
+</script>
+</body>
+</html>
