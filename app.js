@@ -2,17 +2,16 @@ var http=require('http'),
     url=require('url'),
     fs=require('fs'),
     path=require('path'),
-    mime=require('./conf/mime').types,
-    config=require('./conf/config').base,
-    index=require('./conf/index').list;
+    depon=require('./depon');
 
 http.createServer(function (req,res){
     var pathName=url.parse(req.url).pathname,
-        realPath=config.dir+pathName;
+        norPath=path.normalize(pathName.replace(/\.\./g,'')),
+        realPath=path.join(depon.config.dir,norPath.replace(/\\/g,'/'));
 
     fs.stat(realPath,function (err,stats){
         if(err){
-            res.writeHead(404,'Not Found',{"content-type":"text/plain"});
+            res.writeHead(404,'Not Found',{"Content-Type":"text/plain"});
             res.write('err 404.');
             res.end();
             console.log('404: '+pathName);
@@ -20,39 +19,34 @@ http.createServer(function (req,res){
             if(stats.isDirectory()){
                 fs.readdir(realPath,function (err,files){
                     if(err){
-                        res.writeHead(500,{"content-type":"text/plain"});
+                        res.writeHead(500,{"Content-Type":"text/plain"});
                         res.write('err 500.');
                         res.end();
                         console.log('500: '+pathName);
                     }else{
-                        var html=index(pathName,files);
-                        res.writeHead(200,{"content-type":"text/html"});
+                        var html=depon.nav(pathName,files);
+                        res.writeHead(200,{"Content-Type":"text/html"});
                         res.write(html);
                         res.end();
                         console.log('200: '+pathName);
                     }
                 });
             }else{
-                fs.readFile(realPath,'binary',function (err,file){
-                    if(err){
-                        res.writeHead(500,{"content-type":"text/plain"});
-                        res.write('err 500.');
-                        res.end();
-                        console.log('500: '+pathName);
-                    }else{
-                        var extname=path.extname(realPath),
-                            ext=extname?extname.slice(1):'unknown',
-                            contentType=mime[ext] ||'text/plain';
+                var contentType=depon.ctype(realPath);
 
-                        res.writeHead(200,{"content-type":contentType});
-                        res.write(file,'binary');
-                        res.end();
-                        console.log('200: '+pathName);
-                    }
-                });   
+                if(depon.cache(stats,req,res)){
+                    res.writeHead(304, "Not Modified",{"Content-Type":contentType});
+                    res.end();
+                    console.log('304: '+pathName);
+                }else{
+                    var stream=depon.compress(realPath,req,res);
+                    res.writeHead(200,{"Content-Type":contentType});
+                    stream.pipe(res);
+                    console.log('200: '+pathName); 
+                }
             }
         }
     });
-}).listen(config.port,function (){
-    console.log('port '+config.port);
+}).listen(depon.config.port,function (){
+    console.log('port '+depon.config.port);
 });

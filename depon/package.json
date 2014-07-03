@@ -1,0 +1,13 @@
+{
+    "name":"depon",
+    "description":"package for nodewww",
+    "version":"0.0.1",
+    "main":"./lib/index.js",
+    "author":"Adon <leids@foxmail.com>",
+    "keywords":[
+        "depon",
+        "nodewww",
+        "Adon"
+    ],
+    "license": "MIT"
+}
