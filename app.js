@@ -15,35 +15,32 @@ http.createServer(function (req,res){
             res.write('err 404.');
             res.end();
             console.log('404: '+pathName);
-        }else{
-            if(stats.isDirectory()){
-                fs.readdir(realPath,function (err,files){
-                    if(err){
-                        res.writeHead(500,{"Content-Type":"text/plain"});
-                        res.write('err 500.');
-                        res.end();
-                        console.log('500: '+pathName);
-                    }else{
-                        var html=depon.nav(pathName,files);
-                        res.writeHead(200,{"Content-Type":"text/html"});
-                        res.write(html);
-                        res.end();
-                        console.log('200: '+pathName);
-                    }
-                });
-            }else{
-                var contentType=depon.ctype(realPath);
-
-                if(depon.cache(stats,req,res)){
-                    res.writeHead(304, "Not Modified",{"Content-Type":contentType});
+        }else if(stats.isDirectory()){
+            fs.readdir(realPath,function (err,files){
+                if(err){
+                    res.writeHead(500,{"Content-Type":"text/plain"});
+                    res.write('err 500.');
                     res.end();
-                    console.log('304: '+pathName);
+                    console.log('500: '+pathName);
                 }else{
-                    var stream=depon.compress(realPath,req,res);
-                    res.writeHead(200,{"Content-Type":contentType});
-                    stream.pipe(res);
-                    console.log('200: '+pathName); 
+                    var html=depon.nav(pathName,files);
+                    res.writeHead(200,{"Content-Type":"text/html"});
+                    res.write(html);
+                    res.end();
+                    console.log('200: '+pathName);
                 }
+            });
+        }else{
+            var contentType=depon.ctype(realPath);
+            if(depon.cache(stats,req,res)){
+                res.writeHead(304, "Not Modified",{"Content-Type":contentType});
+                res.end();
+                console.log('304: '+pathName);
+            }else{
+                var stream=depon.compress(realPath,req,res);
+                res.writeHead(200,{"Content-Type":contentType});
+                stream.pipe(res);
+                console.log('200: '+pathName); 
             }
         }
     });
